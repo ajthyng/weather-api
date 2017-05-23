@@ -13,7 +13,7 @@ app.use(bodyParser.raw({ extended: false }));
 app.use(bodyParser.json({ extended: false }));
 
 
-app.get('/forecast', weather.forecast(req, res));
+app.get('/forecast', weather.forecast);
 
 app.listen(3000, () => {
   console.log("Listening on port 3000.");
