@@ -1,6 +1,7 @@
-const url = "http://graphical.weather.gov/xml/sample_products/browser_interface/ndfdXMLclient.php";
-
+const weatherUrl = "http://graphical.weather.gov/xml/sample_products/browser_interface/ndfdXMLclient.php";
+const geocodeUrl = "https://maps.googleapis.com/maps/api/geocode/json";
 
 module.exports = {
-  "url": url
+  "weatherUrl": weatherUrl,
+  "geocodeUrl": geocodeUrl
 };

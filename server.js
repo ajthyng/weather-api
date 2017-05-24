@@ -13,6 +13,7 @@ app.use(bodyParser.raw({ extended: false }));
 app.use(bodyParser.json({ extended: false }));
 
 
+app.get('/forecast/zip/:zipcode', weather.zipcode);
 app.get('/forecast', weather.forecast);
 
 app.listen(3000, () => {
