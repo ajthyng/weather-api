@@ -12,7 +12,13 @@ const GEOCODE_TOKEN = process.env.GEOCODE_TOKEN;
 const DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss";
 const PRODUCT = "time-series";
 
-endpoints.forecast = (req, res) => {
+let sendResponse = (data, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.status(200).send(JSON.stringify(data));
+};
+
+let forecast = (req, res) => {
+  console.time("forecast-request");
   let lat = req.query.lat;
   let long = req.query.long;
 
@@ -39,13 +45,14 @@ endpoints.forecast = (req, res) => {
     }
   };
 
-  let sendResponse = (data) => {
-    res.setHeader("Content-Type", "application/json");
-    res.status(200).send(JSON.stringify(data));
-  };
   rp(options)
     .then((data) => {
-      parser.extractTimes(data, sendResponse);
+      parser.extractWeather(data, (data) => {
+        sendResponse(data, res);
+        console.timeEnd("forecast-request");
+        console.timeEnd("zipcode-request");
+        console.timeEnd("geo-request");
+      });
     })
     .catch((error) => {
       console.log(error.message);
@@ -53,7 +60,13 @@ endpoints.forecast = (req, res) => {
     });
 };
 
+endpoints.forecast = (req, res) => {
+  console.time("geo-request");
+  forecast(req, res);
+};
+
 endpoints.zipcode = (req, res) => {
+  console.time("zipcode-request");
   let query = {
     components: "postal_code",
     address: req.params.zipcode,
@@ -76,9 +89,12 @@ endpoints.zipcode = (req, res) => {
         lat: data.results[0].geometry.location.lat,
         lng: data.results[0].geometry.location.lng
       };
-      res.setHeader('Content-Type', "application/json");
-      res.status(200).send(JSON.stringify(response));
-    })
+      req.query = {
+        lat: response.lat,
+        long: response.lng
+      };
+      forecast(req, res)
+  })
     .catch((error) => {
       console.log(error);
       res.status(501).send(error);
