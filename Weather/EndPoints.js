@@ -1,7 +1,6 @@
 const elements = require('./Elements.js');
 const weatherUrl = require('../config').weatherUrl;
 const geocodeUrl = require('../config').geocodeUrl;
-const parser = require('../XML/Parser.js');
 const rp = require('request-promise');
 const moment = require('moment');
 
@@ -13,8 +12,8 @@ const DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss";
 const PRODUCT = "time-series";
 
 let sendResponse = (data, res) => {
-  res.setHeader("Content-Type", "application/json");
-  res.status(200).send(JSON.stringify(data));
+  res.setHeader("Content-Type", "text/xml");
+  res.status(200).send(data);
 };
 
 let forecast = (req, res) => {
@@ -22,8 +21,8 @@ let forecast = (req, res) => {
   let lat = req.query.lat;
   let long = req.query.long;
 
-  let begin = moment().format(DATE_FORMAT);
-  let end = moment().add(1, 'days').format(DATE_FORMAT);
+  let begin = moment().startOf('day').format(DATE_FORMAT);
+  let end = moment().add(10, 'days').endOf('day').format(DATE_FORMAT);
 
   let query = {};
   elements.forecast.forEach((element) => {
@@ -47,17 +46,14 @@ let forecast = (req, res) => {
 
   rp(options)
     .then((data) => {
-      parser.extractWeather(data, (data) => {
-        sendResponse(data, res);
-        console.timeEnd("forecast-request");
-        console.timeEnd("zipcode-request");
-        console.timeEnd("geo-request");
-      });
-    })
-    .catch((error) => {
+      sendResponse(data, res);
+      console.timeEnd("forecast-request");
+      console.timeEnd("zipcode-request");
+      console.timeEnd("geo-request");
+    }).catch((error) => {
       console.log(error.message);
       res.status(error.statusCode).send(error.message);
-    });
+  });
 };
 
 endpoints.forecast = (req, res) => {
@@ -94,9 +90,9 @@ endpoints.zipcode = (req, res) => {
         long: response.lng
       };
       forecast(req, res)
-  })
+    })
     .catch((error) => {
       console.log(error);
       res.status(501).send(error);
-  });
+    });
 };
