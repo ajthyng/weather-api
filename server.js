@@ -15,6 +15,9 @@ app.use(bodyParser.json({ extended: false }));
 
 app.get('/forecast/zip/:zipcode', weather.zipcode);
 app.get('/forecast', weather.forecast);
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).send();
+});
 
 app.listen(3000, () => {
   console.log("Listening on port 3000.");

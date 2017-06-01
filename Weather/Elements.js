@@ -353,11 +353,12 @@ let elements = {
 
 module.exports = {
   "forecast": [
+    elements.temp,
     elements.maxt,
     elements.mint,
+    elements.wwa,
     elements.pop12,
     elements.qpf,
-    elements.temp,
     elements.wdir,
     elements.wspd
   ]

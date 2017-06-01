@@ -1,6 +1,7 @@
 const elements = require('./Elements.js');
 const weatherUrl = require('../config').weatherUrl;
 const geocodeUrl = require('../config').geocodeUrl;
+const parser = require('../XML/Parser.js');
 const rp = require('request-promise');
 const moment = require('moment');
 
@@ -12,7 +13,7 @@ const DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss";
 const PRODUCT = "time-series";
 
 let sendResponse = (data, res) => {
-  res.setHeader("Content-Type", "text/xml");
+  res.setHeader("Content-Type", "application/json");
   res.status(200).send(data);
 };
 
@@ -46,18 +47,18 @@ let forecast = (req, res) => {
 
   rp(options)
     .then((data) => {
-      sendResponse(data, res);
+      parser.extractWeather((data), (jsonData) => {
+        sendResponse(jsonData, res);
+      });
       console.timeEnd("forecast-request");
       console.timeEnd("zipcode-request");
-      console.timeEnd("geo-request");
     }).catch((error) => {
-      console.log(error.message);
+      console.log(error);
       res.status(error.statusCode).send(error.message);
   });
 };
 
 endpoints.forecast = (req, res) => {
-  console.time("geo-request");
   forecast(req, res);
 };
 
